@@ -1,0 +1,1747 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Les Arcades de Polo</title>
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --background: #f0f2f5;
+      --card: #ffffff;
+      --text: #333;
+      --accent: #ff6584;
+    }
+
+    * {
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    /* ----- NAVIGATION ----- */
+    header {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 18px;
+      position: relative;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      left: 0;
+      bottom: -5px;
+      transition: width 0.3s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* ----- SECTIONS ----- */
+    section {
+      padding: 120px 20px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      color: var(--primary);
+    }
+
+    .game-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      margin-top: 40px;
+      transition: transform 0.3s ease;
+      text-align: center;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      border-radius: 10px;
+      background: #000;
+    }
+
+    #tic-tac-toe {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cell {
+      background: #eee;
+      font-size: 40px;
+      text-align: center;
+      line-height: 100px;
+      height: 100px;
+      width: 100px;
+      border-radius: 10px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .cell:hover {
+      background: #ddd;
+    }
+
+    #winner {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 20px;
+      color: var(--accent);
+    }
+
+    @media screen and (max-width: 600px) {
+      nav {
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      #tic-tac-toe {
+        transform: scale(0.8);
+      }
+    }
+	
+	/* Boutons généraux pour les mini-jeux */
+button {
+  padding: 10px 20px;
+  background-color: var(--primary);
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--accent);
+}
+
+input[type="number"] {
+  padding: 10px;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  font-size: 16px;
+  width: 150px;
+  text-align: center;
+}
+
+  </style>
+</head>
+<body>
+
+<section id="intro" style="padding: 100px 20px 60px; text-align: center; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <h1 style="font-size: 4rem; margin: 0; text-shadow: 2px 2px 8px rgba(0,0,0,0.3); font-weight: 900; letter-spacing: 5px;">
+    Les Arcades de Polo
+  </h1>
+  <p style="font-size: 1.5rem; margin-top: 10px; font-style: italic; opacity: 0.8;">
+    Chargements de jeux...
+  </p>
+</section>
+
+ <!-- Navigation -->
+<header>
+  <nav>
+    <a href="#snake">Snake</a>
+    <a href="#tic">Tic Tac Toe</a>
+    <a href="#rps">Pierre-Feuille-Ciseaux</a>
+    <a href="#guess">Devine le Nombre</a>
+    <a href="#dice">Lancer de Dés</a>
+    <a href="#coin-flip">Pile ou Face</a>
+    <a href="#mental-calc">Calcul Mental</a>
+	<a href="#clickBtn">Clicker</a>
+	<a href="#hangman-game">Pendu</a>
+	<a href="#chess-game">Echecs</a>
+	<a href="#whack-a-mole">Précision</a>
+	<a href="#pokemon-capture">Pkmn</a>
+  </nav>
+</header>
+
+<!-- Snake -->
+<section id="snake">
+  <h2>🐍 Snake</h2>
+  <div class="game-card">
+    <p id="snake-score" style="font-weight: bold;">Score : 0</p>
+    <canvas id="snakeCanvas" width="400" height="400"></canvas>
+    <br />
+    <button id="snake-restart">Rejouer</button>
+    <p id="snake-message" style="color: var(--accent); font-weight: bold; margin-top: 10px;"></p>
+  </div>
+</section>
+
+<!-- Tic Tac Toe -->
+<section id="tic">
+  <h2>❌ Tic Tac Toe ⭕</h2>
+  <div class="game-card">
+    <div id="tic-tac-toe"></div>
+    <p id="winner"></p>
+  </div>
+</section>
+
+<!-- Pierre-Feuille-Ciseaux -->
+<section id="rps">
+  <h2>✊ Pierre - Feuille - Ciseaux ✌️</h2>
+  <div class="game-card">
+    <div style="text-align: center;">
+      <button onclick="playRPS('Pierre')">✊ Pierre</button>
+      <button onclick="playRPS('Feuille')">✋ Feuille</button>
+      <button onclick="playRPS('Ciseaux')">✌️ Ciseaux</button>
+      <p id="rps-result" style="margin-top: 20px; font-weight: bold;"></p>
+    </div>
+  </div>
+</section>
+
+<!-- Devine le Nombre -->
+<section id="guess">
+  <h2>🔢 Devine le Nombre</h2>
+  <div class="game-card">
+    <p>J'ai choisi un nombre entre 1 et 100.</p>
+    <input type="number" id="guess-input" placeholder="Devine..." />
+    <button id="guess-test">Tester</button>
+    <button id="guess-restart">Rejouer</button>
+    <p id="guess-feedback" style="margin-top: 20px; font-weight: bold;"></p>
+  </div>
+</section>
+
+<!-- Script Snake -->
+<script>
+  const canvas = document.getElementById("snakeCanvas");
+  const ctx = canvas.getContext("2d");
+  const box = 20;
+
+  let snake = [];
+  let food = {};
+  let direction = null;
+  let gameInterval = null;
+  let score = 0;
+  const scoreDisplay = document.getElementById("snake-score");
+  const messageSnake = document.getElementById("snake-message");
+  const btnSnakeRestart = document.getElementById("snake-restart");
+
+  function randomFoodPosition() {
+    return {
+      x: Math.floor(Math.random() * (canvas.width / box)) * box,
+      y: Math.floor(Math.random() * (canvas.height / box)) * box,
+    };
+  }
+
+  function initSnake() {
+    snake = [{ x: 9 * box, y: 10 * box }];
+    food = randomFoodPosition();
+    direction = null;
+    score = 0;
+    scoreDisplay.textContent = "Score : " + score;
+    messageSnake.textContent = "";
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(draw, 100);
+  }
+
+  function dir(event) {
+    if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    else if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  }
+
+  document.addEventListener("keydown", dir);
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < snake.length; i++) {
+      ctx.fillStyle = i === 0 ? "lime" : "white";
+      ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    }
+
+    ctx.fillStyle = "red";
+    ctx.fillRect(food.x, food.y, box, box);
+
+    let headX = snake[0].x;
+    let headY = snake[0].y;
+
+    if (direction === "LEFT") headX -= box;
+    else if (direction === "UP") headY -= box;
+    else if (direction === "RIGHT") headX += box;
+    else if (direction === "DOWN") headY += box;
+
+    // Si pas de direction choisie, ne pas avancer (attendre)
+    if (!direction) return;
+
+    // Collision avec nourriture ?
+    if (headX === food.x && headY === food.y) {
+      food = randomFoodPosition();
+      score++;
+      scoreDisplay.textContent = "Score : " + score;
+    } else {
+      snake.pop();
+    }
+
+    const newHead = { x: headX, y: headY };
+
+    // Collision avec murs ou avec soi-même
+    const collisionWithSnake = snake.some(segment => segment.x === headX && segment.y === headY);
+    if (
+      headX < 0 || headX >= canvas.width ||
+      headY < 0 || headY >= canvas.height ||
+      collisionWithSnake
+    ) {
+      clearInterval(gameInterval);
+      messageSnake.textContent = "Game Over ! Appuie sur Rejouer pour recommencer.";
+      return;
+    }
+
+    snake.unshift(newHead);
+  }
+
+  btnSnakeRestart.addEventListener("click", () => {
+    initSnake();
+  });
+
+  // Lancer la partie au chargement
+  initSnake();
+</script>
+
+<!-- Script Tic Tac Toe -->
+<script>
+  const board = document.getElementById("tic-tac-toe");
+  const winnerText = document.getElementById("winner");
+  let cells = [];
+  let currentPlayer = "X";
+
+  function checkWin() {
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    for (const [a, b, c] of wins) {
+      if (
+        cells[a].textContent &&
+        cells[a].textContent === cells[b].textContent &&
+        cells[b].textContent === cells[c].textContent
+      ) {
+        winnerText.textContent = `${cells[a].textContent} a gagné !`;
+        board.style.pointerEvents = "none";
+        return true;
+      }
+    }
+
+    if ([...cells].every(cell => cell.textContent)) {
+      winnerText.textContent = "Match nul !";
+      return true;
+    }
+    return false;
+  }
+
+  function createBoard() {
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.addEventListener("click", () => {
+        if (!cell.textContent && !checkWin()) {
+          cell.textContent = currentPlayer;
+          if (!checkWin()) {
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+          }
+        }
+      });
+      board.appendChild(cell);
+      cells.push(cell);
+    }
+  }
+
+  createBoard();
+</script>
+
+<!-- Script Pierre-Feuille-Ciseaux -->
+<script>
+  function playRPS(playerChoice) {
+    const choices = ['Pierre', 'Feuille', 'Ciseaux'];
+    const botChoice = choices[Math.floor(Math.random() * 3)];
+    let result = '';
+
+    if (playerChoice === botChoice) {
+      result = "Égalité ! 🤝";
+    } else if (
+      (playerChoice === 'Pierre' && botChoice === 'Ciseaux') ||
+      (playerChoice === 'Feuille' && botChoice === 'Pierre') ||
+      (playerChoice === 'Ciseaux' && botChoice === 'Feuille')
+    ) {
+      result = `Tu gagnes ! 🏆 (${playerChoice} bat ${botChoice})`;
+    } else {
+      result = `Tu perds 😢 (${botChoice} bat ${playerChoice})`;
+    }
+
+    document.getElementById("rps-result").textContent = result;
+  }
+</script>
+
+<!-- Script Devine le Nombre -->
+<script>
+  let secretNumber = Math.floor(Math.random() * 100) + 1;
+  let attempts = 0;
+
+  const inputGuess = document.getElementById("guess-input");
+  const feedbackGuess = document.getElementById("guess-feedback");
+  const btnTest = document.getElementById("guess-test");
+  const btnRestart = document.getElementById("guess-restart");
+
+  function checkGuess() {
+    const guess = Number(inputGuess.value);
+
+    if (!guess || guess < 1 || guess > 100) {
+      feedbackGuess.textContent = "Entrée invalide. Choisis un nombre entre 1 et 100.";
+      return;
+    }
+
+    attempts++;
+
+    if (guess < secretNumber) {
+      feedbackGuess.textContent = "Trop petit ! 🔽";
+    } else if (guess > secretNumber) {
+      feedbackGuess.textContent = "Trop grand ! 🔼";
+    } else {
+      feedbackGuess.textContent = `Bravo ! 🎉 Tu as trouvé en ${attempts} essai(s) !`;
+      // On ne reset pas automatiquement la partie, attente de clique sur Rejouer
+      btnTest.disabled = true;
+    }
+
+    inputGuess.value = '';
+  }
+
+  btnTest.addEventListener("click", checkGuess);
+
+  btnRestart.addEventListener("click", () => {
+    secretNumber = Math.floor(Math.random() * 100) + 1;
+    attempts = 0;
+    feedbackGuess.textContent = "Nouvelle partie commencée !";
+    inputGuess.value = '';
+    btnTest.disabled = false;
+  });
+</script>
+
+<!-- Lancer de Dés -->
+<section id="dice">
+  <h2>🎲 Lancer de Dés</h2>
+  <div class="game-card" style="text-align: center;">
+    <p>Appuie sur le bouton pour lancer deux dés.</p>
+    <button id="roll-button">Lancer les dés</button>
+    <div style="margin-top: 20px; font-size: 3rem;">
+      <span id="dice1">⚀</span> <span id="dice2">⚀</span>
+    </div>
+    <p id="dice-result" style="margin-top: 20px; font-weight: bold;"></p>
+  </div>
+</section>
+
+
+
+<script>
+  const diceFaces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+  document.getElementById('roll-button').addEventListener('click', () => {
+    const roll1 = Math.floor(Math.random() * 6);
+    const roll2 = Math.floor(Math.random() * 6);
+
+    document.getElementById('dice1').textContent = diceFaces[roll1];
+    document.getElementById('dice2').textContent = diceFaces[roll2];
+
+    const total = roll1 + roll2 + 2; // car index 0 = dé 1
+
+    document.getElementById('dice-result').textContent = `Total : ${total}`;
+  });
+</script>
+
+
+<!-- Pile ou Face -->
+<section id="coin-flip">
+  <h2>🪙 Pile ou Face</h2>
+  <div class="game-card" style="text-align: center;">
+    <p>Choisis Pile ou Face et lance la pièce !</p>
+    <button id="pile-btn">Pile</button>
+    <button id="face-btn">Face</button>
+    <p id="coin-result" style="margin-top: 20px; font-weight: bold;"></p>
+  </div>
+</section>
+
+<script>
+  function flipCoin(playerChoice) {
+    const outcomes = ['Pile', 'Face'];
+    const result = outcomes[Math.floor(Math.random() * 2)];
+    const resultText = result === playerChoice ? `Bravo ! C'est ${result}. Tu as gagné 🎉` : `Dommage... C'est ${result}. Tu as perdu 😢`;
+    document.getElementById('coin-result').textContent = resultText;
+  }
+
+  document.getElementById('pile-btn').addEventListener('click', () => flipCoin('Pile'));
+  document.getElementById('face-btn').addEventListener('click', () => flipCoin('Face'));
+</script>
+
+<!-- Calcul Mental -->
+<section id="mental-calc">
+  <h2>🧠 Calcul Mental</h2>
+  <div class="game-card" style="text-align: center;">
+    <p>Choisis un niveau de difficulté, puis résous le calcul le plus vite possible.</p>
+
+    <div style="margin-bottom: 15px;">
+      <button class="difficulty-btn" data-level="primary">Primaire</button>
+      <button class="difficulty-btn" data-level="college">Collège</button>
+      <button class="difficulty-btn" data-level="lycee">Lycée</button>
+    </div>
+
+    <div id="calc-question" style="font-size: 2rem; margin: 20px 0;"></div>
+    <input type="number" id="calc-answer" placeholder="Ta réponse" style="padding: 10px; font-size: 18px; border-radius: 10px; border: 2px solid var(--primary); width: 150px; text-align: center;" disabled />
+    <br />
+    <button id="submit-answer" style="margin-top: 15px;" disabled>Valider</button>
+
+    <p id="calc-feedback" style="margin-top: 20px; font-weight: bold; min-height: 1.2em;"></p>
+    <p id="calc-score" style="margin-top: 10px; font-weight: bold;"></p>
+  </div>
+</section>
+
+<!-- Script JavaScript du Calcul Mental (placé en bas de page ou avant </body>) -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const calcQuestion = document.getElementById('calc-question');
+    const calcAnswer = document.getElementById('calc-answer');
+    const submitAnswer = document.getElementById('submit-answer');
+    const feedback = document.getElementById('calc-feedback');
+    const scoreDisplay = document.getElementById('calc-score');
+    const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+
+    let correctAnswer = null;
+    let startTime = null;
+
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generatePrimary() {
+      const ops = ['+', '-', '*'];
+      const op = ops[randInt(0, ops.length - 1)];
+      const a = randInt(1, 20);
+      const b = randInt(1, 20);
+      let question = `${a} ${op} ${b}`;
+      let answer;
+      switch (op) {
+        case '+': answer = a + b; break;
+        case '-': answer = a - b; break;
+        case '*': answer = a * b; break;
+      }
+      return { question, answer };
+    }
+
+    function generateCollege() {
+      const ops = ['+', '-', '*', '/', '%'];
+      const op1 = ops[randInt(0, ops.length - 1)];
+      const op2 = ops[randInt(0, ops.length - 1)];
+
+      let a = randInt(10, 50);
+      let b = randInt(1, 20);
+      let c = randInt(1, 20);
+
+      if (op1 === '/') a = b * randInt(1, 5);
+      if (op2 === '/') b = c * randInt(1, 5);
+      if (op1 === '%') a = b * randInt(1, 5) + randInt(0, b - 1);
+      if (op2 === '%') b = c * randInt(1, 5) + randInt(0, c - 1);
+
+      const expr = `${a} ${op1} ${b} ${op2} ${c}`;
+
+      function evalLeftToRight(expr) {
+        const tokens = expr.split(' ');
+        let res = Number(tokens[0]);
+        for (let i = 1; i < tokens.length; i += 2) {
+          let op = tokens[i];
+          let val = Number(tokens[i + 1]);
+          switch (op) {
+            case '+': res += val; break;
+            case '-': res -= val; break;
+            case '*': res *= val; break;
+            case '/': res = Math.floor(res / val); break;
+            case '%': res = res % val; break;
+          }
+        }
+        return res;
+      }
+
+      const answer = evalLeftToRight(expr);
+      return { question: expr, answer };
+    }
+
+    function generateLycee() {
+      const ops = ['+', '-', '*', '/', '^', '√'];
+      let a = randInt(10, 100);
+      let b = randInt(1, 20);
+      let c = randInt(1, 20);
+      let d = randInt(1, 10);
+
+      let op1 = ops[randInt(0, ops.length - 1)];
+      let op2 = ops[randInt(0, ops.length - 1)];
+      let op3 = ops[randInt(0, ops.length - 1)];
+
+      let useSqrt = Math.random() < 0.5;
+      if (useSqrt) {
+        if (Math.random() < 0.5) b = `√${b * b}`;
+        else c = `√${c * c}`;
+      }
+
+      function evalTerm(term) {
+        if (typeof term === 'string' && term.startsWith('√')) {
+          const val = Number(term.slice(1));
+          return Math.floor(Math.sqrt(val));
+        }
+        return Number(term);
+      }
+
+      function evalOp(val1, op, val2) {
+        switch (op) {
+          case '+': return val1 + val2;
+          case '-': return val1 - val2;
+          case '*': return val1 * val2;
+          case '/': return Math.floor(val1 / val2);
+          case '^': return Math.pow(val1, val2);
+        }
+      }
+
+      let valA = evalTerm(a);
+      let valB = evalTerm(b);
+      let valC = evalTerm(c);
+      let valD = evalTerm(d);
+
+      let res1 = evalOp(valA, op1, valB);
+      let res2 = evalOp(res1, op2, valC);
+      let res3 = evalOp(res2, op3, valD);
+
+      let strA = (typeof a === 'string') ? a : a;
+      let strB = (typeof b === 'string') ? b : b;
+      let strC = (typeof c === 'string') ? c : c;
+      let strD = (typeof d === 'string') ? d : d;
+
+      let exp1 = `${strA} ${op1} ${strB}`;
+      let exp2 = `(${exp1}) ${op2} ${strC}`;
+      let expression = `(${exp2}) ${op3} ${strD}`;
+
+      return { question: expression, answer: Math.floor(res3) };
+    }
+
+    function generateCalculation(level) {
+      switch (level) {
+        case 'primary': return generatePrimary();
+        case 'college': return generateCollege();
+        case 'lycee': return generateLycee();
+        default: return generatePrimary();
+      }
+    }
+
+    function startNewCalc(level) {
+      const { question, answer } = generateCalculation(level);
+      correctAnswer = answer;
+      calcQuestion.textContent = question;
+      calcAnswer.value = '';
+      feedback.textContent = '';
+      scoreDisplay.textContent = '';
+      calcAnswer.disabled = false;
+      submitAnswer.disabled = false;
+      calcAnswer.focus();
+      startTime = Date.now();
+    }
+
+    difficultyButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        startNewCalc(btn.dataset.level);
+      });
+    });
+
+    submitAnswer.addEventListener('click', () => {
+      if (calcAnswer.value === '') return;
+      const userAnswer = Number(calcAnswer.value);
+      let timeTaken = (Date.now() - startTime) / 1000;
+      if (timeTaken > 10) timeTaken = 10;
+
+      if (userAnswer === correctAnswer) {
+        const score = Math.max(0, Math.round(100 - timeTaken * 10));
+        feedback.textContent = `Bravo ! 🎉 Réponse correcte en ${timeTaken.toFixed(2)} secondes.`;
+        scoreDisplay.textContent = `Score : ${score}`;
+      } else {
+        feedback.textContent = `Perdu ! 😢 La bonne réponse était ${correctAnswer}.`;
+        scoreDisplay.textContent = '';
+      }
+
+      calcAnswer.disabled = true;
+      submitAnswer.disabled = true;
+    });
+
+    calcAnswer.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter' && !submitAnswer.disabled) {
+        submitAnswer.click();
+      }
+    });
+  });
+</script>
+
+
+<!-- Bloc Jeu Clique Rapide avec Timer, étoiles et bouton Rejouer -->
+<div style="
+  margin: 50px auto; 
+  max-width: 450px; 
+  background: #f0f8ff; 
+  border: 3px solid #1e90ff; 
+  border-radius: 15px; 
+  padding: 30px 40px; 
+  text-align: center; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  box-shadow: 0 4px 12px rgba(30,144,255,0.2);
+  ">
+  <h2 style="color: #1e90ff; margin-bottom: 25px; font-weight: 700;">Jeu : Clique Rapide (5 secondes)</h2>
+  <button id="clickBtn" style="
+    font-size: 26px; 
+    padding: 18px 60px; 
+    background: #1e90ff; 
+    color: #fff; 
+    border: none; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    user-select: none;
+    box-shadow: 0 4px 8px rgba(30,144,255,0.4);
+    transition: background-color 0.3s ease;
+    ">
+    Clique vite !
+  </button>
+
+  <div style="margin-top: 28px; font-size: 22px; color: #0d47a1; font-weight: 600;">
+    Clics : <span id="clickCount">0</span>
+  </div>
+  <div style="margin-top: 14px; font-size: 20px; color: #0d47a1;">
+    Temps restant : <span id="timeLeft">5</span>s
+  </div>
+
+  <div id="result" style="margin-top: 32px; font-size: 32px; color: #1565c0; min-height: 48px; font-weight: 700; letter-spacing: 1.2px;"></div>
+
+  <button id="resetBtn" style="
+    margin-top: 28px; 
+    font-size: 20px; 
+    padding: 14px 48px; 
+    background: #e1f0ff; 
+    color: #1e90ff; 
+    border: 2px solid #1e90ff; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    user-select: none;
+    box-shadow: 0 2px 6px rgba(30,144,255,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    ">
+    Rejouer
+  </button>
+</div>
+
+<script>
+(() => {
+  const btn = document.getElementById('clickBtn');
+  const clickCountDisplay = document.getElementById('clickCount');
+  const timeLeftDisplay = document.getElementById('timeLeft');
+  const resultDiv = document.getElementById('result');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let clicks = 0;
+  let timeLeft = 5;
+  let timer = null;
+  let gameStarted = false;
+
+  function getStars(count) {
+    if(count >= 81 && count <= 100) return 6;
+    if(count >= 63 && count <= 80) return 5;
+    if(count >= 46 && count <= 62) return 4;
+    if(count >= 21 && count <= 45) return 3;
+    if(count >= 11 && count <= 20) return 2;
+    if(count >= 1 && count <= 10) return 1;
+    return 0;
+  }
+
+  function displayStars(n) {
+    if(n === 0) return 'Pas d\'étoile...';
+    return '⭐'.repeat(n);
+  }
+
+  function endGame() {
+    btn.disabled = true;
+    gameStarted = false;
+    const stars = getStars(clicks);
+    resultDiv.textContent = stars === 6 
+      ? '🎉 Score secret : 6 étoiles ! 🎉' 
+      : 'Résultat : ' + displayStars(stars);
+
+    resetBtn.style.opacity = '1';
+    resetBtn.style.pointerEvents = 'auto';
+  }
+
+  function tick() {
+    timeLeft--;
+    timeLeftDisplay.textContent = timeLeft;
+    if(timeLeft <= 0) {
+      clearInterval(timer);
+      endGame();
+    }
+  }
+
+  btn.addEventListener('click', () => {
+    if(!gameStarted) {
+      gameStarted = true;
+      timer = setInterval(tick, 1000);
+    }
+    if(timeLeft > 0) {
+      clicks++;
+      clickCountDisplay.textContent = clicks;
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    clearInterval(timer);
+    clicks = 0;
+    timeLeft = 5;
+    clickCountDisplay.textContent = clicks;
+    timeLeftDisplay.textContent = timeLeft;
+    resultDiv.textContent = '';
+    btn.disabled = false;
+    gameStarted = false;
+    resetBtn.style.opacity = '0';
+    resetBtn.style.pointerEvents = 'none';
+  });
+})();
+</script>
+
+<style>
+  /* DA blanche/bleue, centré */
+  #hangman-game {
+    max-width: 450px;
+    margin: 30px auto;
+    background: #f0f8ff;
+    border: 3px solid #005f9e;
+    border-radius: 12px;
+    padding: 20px 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #003366;
+    user-select: none;
+  }
+  #hangman-game h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  #word-display {
+    font-size: 32px;
+    letter-spacing: 10px;
+    text-align: center;
+    margin: 25px 0;
+    font-weight: 600;
+  }
+  #used-letters {
+    margin-top: 10px;
+    font-size: 14px;
+    min-height: 22px;
+  }
+  #message {
+    margin: 15px 0;
+    font-weight: 600;
+    text-align: center;
+    min-height: 22px;
+  }
+  #indice-container {
+    margin: 10px 0;
+    font-style: italic;
+    color: #005f9e;
+    text-align: center;
+    min-height: 28px;
+  }
+  #letters-container {
+    text-align: center;
+    margin-top: 15px;
+  }
+  #letters-container button {
+    margin: 3px 3px;
+    padding: 10px 13px;
+    background: #005f9e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s;
+    width: 38px;
+    font-weight: 600;
+  }
+  #letters-container button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    color: #777;
+  }
+  #indice-btn, #replay-btn {
+    display: block;
+    margin: 12px auto 5px auto;
+    padding: 9px 18px;
+    font-size: 16px;
+    border-radius: 8px;
+    background: #0077cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    width: 180px;
+  }
+  #indice-btn:hover:not(:disabled),
+  #replay-btn:hover {
+    background-color: #005f9e;
+  }
+  #indice-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+</style>
+
+<div id="hangman-game">
+  <h2>Jeu du Pendu</h2>
+  <div id="word-display">_ _ _ _ _</div>
+  <div id="used-letters">Lettres utilisées : </div>
+  <div id="message"></div>
+  <div id="indice-container"></div>
+  <button id="indice-btn">Afficher un indice</button>
+  <div id="letters-container"></div>
+  <button id="replay-btn" style="display:none;">Rejouer</button>
+</div>
+
+<script>
+  (() => {
+    // fonction pour enlever accents d'une chaîne (normalisation basique)
+    function removeAccents(str) {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    const words = [
+      {word: 'PYTHON', indice: 'Un langage de programmation populaire'},
+      {word: 'ELEPHANT', indice: "Le plus gros animal terrestre"},
+      {word: 'BASKETBALL', indice: "Un sport avec un ballon et un panier"},
+      {word: 'VOYAGE', indice: "Partir loin pour découvrir le monde"},
+      {word: 'CHOCOLAT', indice: "Délicieux et souvent noir ou au lait"},
+      {word: 'MONTAGNE', indice: "Un grand relief souvent enneigé"},
+      {word: 'OCEAN', indice: "Une vaste étendue d’eau salée"},
+      {word: 'ARBRE', indice: "Il a des feuilles et des racines"},
+      {word: 'LANTERNE', indice: "Elle éclaire la nuit"},
+      {word: 'FESTIVAL', indice: "Une grande fête avec musique et danse"},
+	  {word: 'DIRECTEUR' indice: "Chargé de l'administration d'une école"},
+	 
+    ];
+
+    const maxErrors = 8;
+    let currentWord = '';
+    let currentIndice = '';
+    let guessedLetters = new Set();
+    let wrongLetters = new Set();
+    let gameOver = false;
+
+    const wordDisplay = document.getElementById('word-display');
+    const usedLetters = document.getElementById('used-letters');
+    const message = document.getElementById('message');
+    const indiceContainer = document.getElementById('indice-container');
+    const indiceBtn = document.getElementById('indice-btn');
+    const lettersContainer = document.getElementById('letters-container');
+    const replayBtn = document.getElementById('replay-btn');
+
+    function pickWord() {
+      const idx = Math.floor(Math.random() * words.length);
+      currentWord = words[idx].word.toUpperCase();
+      currentIndice = words[idx].indice;
+    }
+
+    function displayWord() {
+      let display = '';
+      for (const c of currentWord) {
+        display += guessedLetters.has(c) ? c + ' ' : '_ ';
+      }
+      wordDisplay.textContent = display.trim();
+    }
+
+    function updateUsedLetters() {
+      let allUsed = [...guessedLetters, ...wrongLetters];
+      usedLetters.textContent = 'Lettres utilisées : ' + (allUsed.length ? allUsed.join(' ') : '-');
+    }
+
+    function checkWin() {
+      for (const c of currentWord) {
+        if (!guessedLetters.has(c)) return false;
+      }
+      return true;
+    }
+
+    function checkLose() {
+      return wrongLetters.size >= maxErrors;
+    }
+
+    function disableLetters() {
+      const buttons = lettersContainer.querySelectorAll('button');
+      buttons.forEach(btn => btn.disabled = true);
+    }
+
+    function enableLetters() {
+      const buttons = lettersContainer.querySelectorAll('button');
+      buttons.forEach(btn => btn.disabled = false);
+    }
+
+    function handleGuess(letter) {
+      if(gameOver) return;
+      letter = removeAccents(letter.toUpperCase());
+      if(guessedLetters.has(letter) || wrongLetters.has(letter)) return;
+
+      if(currentWord.includes(letter)) {
+        guessedLetters.add(letter);
+        message.textContent = "Bien joué!";
+      } else {
+        wrongLetters.add(letter);
+        message.textContent = "Raté!";
+      }
+      displayWord();
+      updateUsedLetters();
+
+      if(checkWin()) {
+        message.textContent = "Bravo, tu as gagné ! 🎉";
+        gameOver = true;
+        disableLetters();
+        indiceBtn.disabled = true;
+        replayBtn.style.display = 'block';
+      } else if(checkLose()) {
+        message.textContent = `Perdu... Le mot était : ${currentWord}`;
+        gameOver = true;
+        displayWord();
+        disableLetters();
+        indiceBtn.disabled = true;
+        replayBtn.style.display = 'block';
+      }
+    }
+
+    function createLetterButtons() {
+      lettersContainer.innerHTML = '';
+      for(let i=65; i<=90; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = String.fromCharCode(i);
+        btn.addEventListener('click', () => handleGuess(btn.textContent));
+        lettersContainer.appendChild(btn);
+      }
+    }
+
+    function resetGame() {
+      pickWord();
+      guessedLetters.clear();
+      wrongLetters.clear();
+      gameOver = false;
+      indiceContainer.textContent = '';
+      message.textContent = '';
+      updateUsedLetters();
+      displayWord();
+      enableLetters();
+      indiceBtn.disabled = false;
+      replayBtn.style.display = 'none';
+    }
+
+    indiceBtn.addEventListener('click', () => {
+      if(!gameOver && indiceContainer.textContent === '') {
+        indiceContainer.textContent = 'Indice : ' + currentIndice;
+        indiceBtn.disabled = true;
+      }
+    });
+
+    replayBtn.addEventListener('click', () => {
+      resetGame();
+    });
+
+    createLetterButtons();
+    resetGame();
+  })();
+</script>
+
+<!-- Mini Échecs -->
+<section id="chess-game">
+  <h2>♟️ Mini Échecs</h2>
+  <div class="game-card" style="text-align: center;">
+    <div id="chess-board" style="margin: auto; width: 400px; display: grid; grid-template-columns: repeat(8, 50px); grid-template-rows: repeat(8, 50px); border: 2px solid var(--primary);"></div>
+    <p id="chess-message" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></p>
+    <button id="chess-reset" style="margin-top:15px;">Recommencer</button>
+  </div>
+</section>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const boardElement = document.getElementById('chess-board');
+    const messageEl = document.getElementById('chess-message');
+    const resetBtn = document.getElementById('chess-reset');
+
+    let board; // 2D array 8x8
+    let selected = null; // {row, col}
+    let currentPlayer = 'w'; // 'w' pour blanc, 'b' pour noir
+
+    // Unicode des pièces
+    const piecesUnicode = {
+      'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+      'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
+    };
+
+    function initBoard() {
+      // initialisation standard
+      board = [
+        ['r','n','b','q','k','b','n','r'],
+        ['p','p','p','p','p','p','p','p'],
+        ['','','','','','','',''],
+        ['','','','','','','',''],
+        ['','','','','','','',''],
+        ['','','','','','','',''],
+        ['P','P','P','P','P','P','P','P'],
+        ['R','N','B','Q','K','B','N','R']
+      ];
+      currentPlayer = 'w';
+      selected = null;
+      messageEl.textContent = `À toi de jouer : Blanc`;
+      renderBoard();
+    }
+
+    function renderBoard() {
+      boardElement.innerHTML = '';
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement('div');
+          square.style.width = '50px';
+          square.style.height = '50px';
+          square.style.boxSizing = 'border-box';
+          square.style.display = 'flex';
+          square.style.alignItems = 'center';
+          square.style.justifyContent = 'center';
+          square.style.fontSize = '32px';
+          // couleur des cases
+          if ((row + col) % 2 === 0) square.style.background = '#eee';
+          else square.style.background = '#555';
+          square.style.color = (row + col) % 2 === 0 ? '#000' : '#fff';
+
+          square.dataset.row = row;
+          square.dataset.col = col;
+
+          const piece = board[row][col];
+          if (piece) {
+            const span = document.createElement('span');
+            span.textContent = piecesUnicode[piece];
+            square.appendChild(span);
+          }
+
+          square.addEventListener('click', onSquareClick);
+
+          // marquer la sélection
+          if (selected && selected.row == row && selected.col == col) {
+            square.style.outline = '3px solid var(--accent)';
+          }
+
+          boardElement.appendChild(square);
+        }
+      }
+    }
+
+    function onSquareClick(e) {
+      const row = +e.currentTarget.dataset.row;
+      const col = +e.currentTarget.dataset.col;
+      const piece = board[row][col];
+
+      // si on n’a pas encore sélectionné de pièce
+      if (!selected) {
+        // doit être une pièce de celui qui joue
+        if (piece && isOwnPiece(piece, currentPlayer)) {
+          selected = {row, col};
+          messageEl.textContent = `Piece sélectionnée : ${piece}. Choisis où la déplacer`;
+          renderBoard();
+        } else {
+          messageEl.textContent = `Sélection invalide. C'est au tour de ${currentPlayer === 'w' ? 'Blanc' : 'Noir'}.`;
+        }
+      } else {
+        // on a déjà une pièce sélectionnée -> tenter déplacement
+        if (tryMove(selected.row, selected.col, row, col)) {
+          // succès
+          currentPlayer = currentPlayer === 'w' ? 'b' : 'w';
+          messageEl.textContent = `À toi de jouer : ${currentPlayer === 'w' ? 'Blanc' : 'Noir'}`;
+        } else {
+          messageEl.textContent = `Coup invalide. Essaie encore.`;
+        }
+        selected = null;
+        renderBoard();
+      }
+    }
+
+    function isOwnPiece(piece, player) {
+      if (player === 'w') {
+        return piece === piece.toUpperCase();
+      } else {
+        return piece === piece.toLowerCase();
+      }
+    }
+
+    function tryMove(sr, sc, tr, tc) {
+      const piece = board[sr][sc];
+      if (!piece) return false;
+      // ne pas capturer ses propres pièces
+      const targetPiece = board[tr][tc];
+      if (targetPiece && isOwnPiece(targetPiece, currentPlayer)) return false;
+
+      const deltaRow = tr - sr;
+      const deltaCol = tc - sc;
+
+      const type = piece.toLowerCase();
+
+      // logique simple selon type
+      switch(type) {
+        case 'p': // pion
+          return tryPawnMove(piece, sr, sc, tr, tc);
+        case 'r': // tour
+          return trySlidingMove(sr, sc, tr, tc, [[1,0],[-1,0],[0,1],[0,-1]]);
+        case 'b': // fou
+          return trySlidingMove(sr, sc, tr, tc, [[1,1],[1,-1],[-1,1],[-1,-1]]);
+        case 'n': // cavalier
+          if ((Math.abs(deltaRow)==2 && Math.abs(deltaCol)==1) || (Math.abs(deltaRow)==1 && Math.abs(deltaCol)==2)) {
+            board[tr][tc] = piece;
+            board[sr][sc] = '';
+            return true;
+          }
+          return false;
+        case 'q': // reine
+          return trySlidingMove(sr, sc, tr, tc, [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]);
+        case 'k': // roi
+          if (Math.abs(deltaRow) <= 1 && Math.abs(deltaCol) <= 1) {
+            board[tr][tc] = piece;
+            board[sr][sc] = '';
+            return true;
+          }
+          return false;
+        default:
+          return false;
+      }
+    }
+
+    function trySlidingMove(sr, sc, tr, tc, directions) {
+      const deltaRow = tr - sr;
+      const deltaCol = tc - sc;
+      for (let [dr, dc] of directions) {
+        let r = sr + dr, c = sc + dc;
+        while (r >=0 && r<8 && c>=0 && c<8) {
+          if (r === tr && c === tc) {
+            // vérifie qu'il n'y ait pas d'obstacle
+            if (pathClear(sr, sc, tr, tc, dr, dc)) {
+              board[tr][tc] = board[sr][sc];
+              board[sr][sc] = '';
+              return true;
+            }
+          }
+          // si case occupée, stop dans cette direction
+          if (board[r][c] !== '') break;
+          r += dr; c += dc;
+        }
+      }
+      return false;
+    }
+
+    function pathClear(sr, sc, tr, tc, dr, dc) {
+      let r = sr + dr;
+      let c = sc + dc;
+      while (r !== tr || c !== tc) {
+        if (board[r][c] !== '') return false;
+        r += dr;
+        c += dc;
+      }
+      return true;
+    }
+
+    function tryPawnMove(piece, sr, sc, tr, tc) {
+      const dir = piece === 'P' ? -1 : 1; // blanc monte (vers rangée 0), noir descend (vers rangée 7)
+      const startRow = piece === 'P' ? 6 : 1;
+
+      // déplacement simple
+      if (sc === tc && board[tr][tc] === '' && tr - sr === dir) {
+        board[tr][tc] = piece;
+        board[sr][sc] = '';
+        return true;
+      }
+      // premier double pas
+      if (sc === tc && board[sr + dir][sc] === '' && board[tr][tc] === '' && sr === startRow && tr - sr === dir * 2) {
+        board[tr][tc] = piece;
+        board[sr][sc] = '';
+        return true;
+      }
+      // capture diagonale
+      if (Math.abs(tc - sc) === 1 && tr - sr === dir && board[tr][tc] !== '' && !isOwnPiece(board[tr][tc], currentPlayer)) {
+        board[tr][tc] = piece;
+        board[sr][sc] = '';
+        return true;
+      }
+      return false;
+    }
+
+    resetBtn.addEventListener('click', () => {
+      initBoard();
+    });
+
+    initBoard();
+  });
+</script>
+
+<!-- Jeu de la Taupe -->
+<section id="whack-a-mole">
+  <h2>🐹 Jeu de la Taupe</h2>
+  <div class="game-card" style="position: relative;">
+    <p>Attrape le plus de taupes en 30 secondes !</p>
+    <div id="mole-grid" style="width: 300px; height: 300px; margin: auto; position: relative;"></div>
+    <p id="mole-score" style="margin-top: 20px; font-weight: bold;">Score : 0</p>
+    <p id="mole-timer" style="margin-bottom: 10px;">Temps restant : 30s</p>
+    <button id="mole-start">Démarrer</button>
+  </div>
+</section>
+
+<script>
+  const moleGrid = document.getElementById("mole-grid");
+  const moleScoreDisplay = document.getElementById("mole-score");
+  const moleTimerDisplay = document.getElementById("mole-timer");
+  const moleStartBtn = document.getElementById("mole-start");
+
+  let moleScore = 0;
+  let timeLeft = 30;
+  let moleInterval;
+  let timerInterval;
+
+  function createMole() {
+    moleGrid.innerHTML = "";
+
+    const mole = document.createElement("div");
+    mole.style.width = "45px";
+    mole.style.height = "45px";
+    mole.style.borderRadius = "50%";
+    mole.style.background = "var(--accent)";
+    mole.style.position = "absolute";
+    mole.style.cursor = "pointer";
+    mole.style.transition = "transform 0.2s ease";
+
+    // Position aléatoire dans la grille (300x300)
+    const x = Math.random() * 240;
+    const y = Math.random() * 240;
+    mole.style.left = x + "px";
+    mole.style.top = y + "px";
+
+    mole.addEventListener("click", () => {
+      moleScore++;
+      moleScoreDisplay.textContent = "Score : " + moleScore;
+      createMole(); // Nouvelle taupe
+    });
+
+    moleGrid.appendChild(mole);
+  }
+
+  function startMoleGame() {
+    moleScore = 0;
+    timeLeft = 30;
+    moleScoreDisplay.textContent = "Score : 0";
+    moleTimerDisplay.textContent = "Temps restant : 30s";
+    moleStartBtn.disabled = true;
+
+    createMole();
+
+    moleInterval = setInterval(() => {
+      createMole(); // Change la taupe toutes les 800ms
+    }, 800);
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      moleTimerDisplay.textContent = "Temps restant : " + timeLeft + "s";
+
+      if (timeLeft <= 0) {
+        clearInterval(moleInterval);
+        clearInterval(timerInterval);
+        moleGrid.innerHTML = "";
+        moleTimerDisplay.textContent = "Terminé !";
+        moleStartBtn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  moleStartBtn.addEventListener("click", startMoleGame);
+</script>
+
+<!-- Jeu : Capture Pokémon (avec 151 Pokémon) -->
+ 
+<section id="pokemon-capture">
+  <h2>🎯 Capture de Pokémon</h2>
+  <div class="game-card">
+    <p>Un Pokémon sauvage est apparu !</p>
+    
+    <img id="pokemon-image" src="" alt="Pokémon" class="pokemon-sprite" />
+    <div id="pokemon-display" style="font-size: 1.5rem; font-weight: bold;"></div>
+    
+    <div id="pokemon-types" style="margin: 5px 0; font-size: 1rem;"></div>
+
+    <div id="balls-remaining" style="margin: 10px 0;">Pokéballs restantes : <span id="balls-count">5</span></div>
+
+    <div>
+      <button id="throw-ball">🎯 Lancer une Pokéball</button>
+      <button id="restart-capture" style="display: none;">🔁 Rejouer</button>
+    </div>
+
+    <p id="capture-feedback" style="min-height: 2em; font-weight: bold;"></p>
+
+    <h3>📦 Pokémon capturés :</h3>
+    <div id="pokemon-captured" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+  </div>
+
+</section>
+
+<script>
+  // Liste avec noms + taux de capture estimés pour 151 pokemons (français ou anglais selon usage)
+  // Pour simplifier, on met les noms en anglais, mais tu peux traduire si tu veux.
+  // On prendra les 151 premiers via PokéAPI, donc c'est plus simple de juste connaître nom + captureRate.
+
+  const pokemonsCaptureRates = [
+    { name: 'bulbasaur', captureRate: 0.3 },
+    { name: 'ivysaur', captureRate: 0.3 },
+    { name: 'venusaur', captureRate: 0.2 },
+    { name: 'charmander', captureRate: 0.3 },
+    { name: 'charmeleon', captureRate: 0.3 },
+    { name: 'charizard', captureRate: 0.2 },
+    { name: 'squirtle', captureRate: 0.3 },
+    { name: 'wartortle', captureRate: 0.3 },
+    { name: 'blastoise', captureRate: 0.2 },
+    { name: 'caterpie', captureRate: 0.9 },
+    { name: 'metapod', captureRate: 0.8 },
+    { name: 'butterfree', captureRate: 0.6 },
+    { name: 'weedle', captureRate: 0.9 },
+    { name: 'kakuna', captureRate: 0.8 },
+    { name: 'beedrill', captureRate: 0.6 },
+    { name: 'pidgey', captureRate: 0.8 },
+    { name: 'pidgeotto', captureRate: 0.6 },
+    { name: 'pidgeot', captureRate: 0.4 },
+    { name: 'rattata', captureRate: 0.8 },
+    { name: 'raticate', captureRate: 0.6 },
+    { name: 'spearow', captureRate: 0.8 },
+    { name: 'fearow', captureRate: 0.6 },
+    { name: 'ekans', captureRate: 0.7 },
+    { name: 'arbok', captureRate: 0.5 },
+    { name: 'pikachu', captureRate: 0.6 },
+    { name: 'raichu', captureRate: 0.4 },
+    { name: 'sandshrew', captureRate: 0.7 },
+    { name: 'sandslash', captureRate: 0.5 },
+    { name: 'nidoran-f', captureRate: 0.7 },
+    { name: 'nidorina', captureRate: 0.6 },
+    { name: 'nidoqueen', captureRate: 0.4 },
+    { name: 'nidoran-m', captureRate: 0.7 },
+    { name: 'nidorino', captureRate: 0.6 },
+    { name: 'nidoking', captureRate: 0.4 },
+    { name: 'clefairy', captureRate: 0.7 },
+    { name: 'clefable', captureRate: 0.5 },
+    { name: 'vulpix', captureRate: 0.7 },
+    { name: 'ninetales', captureRate: 0.5 },
+    { name: 'jigglypuff', captureRate: 0.7 },
+    { name: 'wigglytuff', captureRate: 0.5 },
+    { name: 'zubat', captureRate: 0.8 },
+    { name: 'golbat', captureRate: 0.6 },
+    { name: 'oddish', captureRate: 0.7 },
+    { name: 'gloom', captureRate: 0.6 },
+    { name: 'vileplume', captureRate: 0.5 },
+    { name: 'paras', captureRate: 0.8 },
+    { name: 'parasect', captureRate: 0.6 },
+    { name: 'venonat', captureRate: 0.8 },
+    { name: 'venomoth', captureRate: 0.6 },
+    { name: 'diglett', captureRate: 0.8 },
+    { name: 'dugtrio', captureRate: 0.5 },
+    { name: 'meowth', captureRate: 0.7 },
+    { name: 'persian', captureRate: 0.5 },
+    { name: 'psyduck', captureRate: 0.7 },
+    { name: 'golduck', captureRate: 0.5 },
+    { name: 'mankey', captureRate: 0.8 },
+    { name: 'primeape', captureRate: 0.6 },
+    { name: 'growlithe', captureRate: 0.7 },
+    { name: 'arcanine', captureRate: 0.4 },
+    { name: 'poliwag', captureRate: 0.8 },
+    { name: 'poliwhirl', captureRate: 0.6 },
+    { name: 'poliwrath', captureRate: 0.5 },
+    { name: 'abra', captureRate: 0.6 },
+    { name: 'kadabra', captureRate: 0.4 },
+    { name: 'alakazam', captureRate: 0.3 },
+    { name: 'machop', captureRate: 0.7 },
+    { name: 'machoke', captureRate: 0.5 },
+    { name: 'machamp', captureRate: 0.4 },
+    { name: 'bellsprout', captureRate: 0.8 },
+    { name: 'weepinbell', captureRate: 0.6 },
+    { name: 'victreebel', captureRate: 0.5 },
+    { name: 'tentacool', captureRate: 0.8 },
+    { name: 'tentacruel', captureRate: 0.5 },
+    { name: 'geodude', captureRate: 0.8 },
+    { name: 'graveler', captureRate: 0.5 },
+    { name: 'golem', captureRate: 0.4 },
+    { name: 'ponyta', captureRate: 0.7 },
+    { name: 'rapidash', captureRate: 0.5 },
+    { name: 'slowpoke', captureRate: 0.7 },
+    { name: 'slowbro', captureRate: 0.5 },
+    { name: 'magnemite', captureRate: 0.7 },
+    { name: 'magneton', captureRate: 0.5 },
+    { name: "farfetchd", captureRate: 0.6 },
+    { name: 'doduo', captureRate: 0.7 },
+    { name: 'dodrio', captureRate: 0.5 },
+    { name: 'seel', captureRate: 0.7 },
+    { name: 'dewgong', captureRate: 0.5 },
+    { name: 'grimer', captureRate: 0.7 },
+    { name: 'muk', captureRate: 0.5 },
+    { name: 'shellder', captureRate: 0.8 },
+    { name: 'cloyster', captureRate: 0.5 },
+    { name: 'gastly', captureRate: 0.7 },
+    { name: 'haunter', captureRate: 0.5 },
+    { name: 'gengar', captureRate: 0.3 },
+    { name: 'onix', captureRate: 0.4 },
+    { name: 'drowzee', captureRate: 0.7 },
+    { name: 'hypno', captureRate: 0.5 },
+    { name: 'krabby', captureRate: 0.7 },
+    { name: 'kingler', captureRate: 0.5 },
+    { name: 'voltorb', captureRate: 0.6 },
+    { name: 'electrode', captureRate: 0.5 },
+    { name: 'exeggcute', captureRate: 0.6 },
+    { name: 'exeggutor', captureRate: 0.4 },
+    { name: 'cubone', captureRate: 0.7 },
+    { name: 'marowak', captureRate: 0.5 },
+    { name: 'hitmonlee', captureRate: 0.5 },
+    { name: 'hitmonchan', captureRate: 0.5 },
+    { name: 'lickitung', captureRate: 0.6 },
+    { name: 'koffing', captureRate: 0.6 },
+    { name: 'weezing', captureRate: 0.4 },
+    { name: 'rhyhorn', captureRate: 0.6 },
+    { name: 'rhydon', captureRate: 0.4 },
+    { name: 'chansey', captureRate: 0.3 },
+    { name: 'tangela', captureRate: 0.4 },
+    { name: 'kangaskhan', captureRate: 0.4 },
+    { name: 'horsea', captureRate: 0.7 },
+    { name: 'seadra', captureRate: 0.5 },
+    { name: 'goldeen', captureRate: 0.7 },
+    { name: 'seaking', captureRate: 0.5 },
+    { name: 'staryu', captureRate: 0.7 },
+    { name: 'starmie', captureRate: 0.5 },
+    { name: 'mr-mime', captureRate: 0.4 },
+    { name: 'scyther', captureRate: 0.4 },
+    { name: 'jynx', captureRate: 0.4 },
+    { name: 'electabuzz', captureRate: 0.3 },
+    { name: 'magmar', captureRate: 0.3 },
+    { name: 'pinsir', captureRate: 0.3 },
+    { name: 'tauros', captureRate: 0.4 },
+    { name: 'magikarp', captureRate: 0.9 },
+    { name: 'gyarados', captureRate: 0.2 },
+    { name: 'lapras', captureRate: 0.3 },
+    { name: 'ditto', captureRate: 0.5 },
+    { name: 'eevee', captureRate: 0.6 },
+    { name: 'vaporeon', captureRate: 0.5 },
+    { name: 'jolteon', captureRate: 0.5 },
+    { name: 'flareon', captureRate: 0.5 },
+    { name: 'porygon', captureRate: 0.4 },
+    { name: 'omanyte', captureRate: 0.6 },
+    { name: 'omastar', captureRate: 0.5 },
+    { name: 'kabuto', captureRate: 0.6 },
+    { name: 'kabutops', captureRate: 0.5 },
+    { name: 'aerodactyl', captureRate: 0.3 },
+    { name: 'snorlax', captureRate: 0.3 },
+    { name: 'articuno', captureRate: 0.2 },
+    { name: 'zapdos', captureRate: 0.2 },
+    { name: 'moltres', captureRate: 0.2 },
+    { name: 'dratini', captureRate: 0.4 },
+    { name: 'dragonair', captureRate: 0.3 },
+    { name: 'dragonite', captureRate: 0.2 },
+    { name: 'mewtwo', captureRate: 0.1 },
+    { name: 'mew', captureRate: 0.1 }
+  ];
+
+  const totalBalls = 5;
+  let ballsLeft = totalBalls;
+  let currentPokemon = null;
+  let captured = [];
+
+  const pokemonDisplay = document.getElementById('pokemon-display');
+  const pokemonImage = document.getElementById('pokemon-image');
+  const pokemonTypesDiv = document.getElementById('pokemon-types');
+  const ballsCountSpan = document.getElementById('balls-count');
+  const throwBtn = document.getElementById('throw-ball');
+  const restartBtn = document.getElementById('restart-capture');
+  const feedback = document.getElementById('capture-feedback');
+  const capturedContainer = document.getElementById('pokemon-captured');
+  const pokedexListDiv = document.getElementById('pokedex-list');
+
+  // Fonction pour récupérer les données d’un Pokémon via PokéAPI
+  async function fetchPokemonData(name) {
+    try {
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+      if (!response.ok) throw new Error('Pokémon introuvable');
+      const data = await response.json();
+      return data; 
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  function formatName(name) {
+    // Remet la première lettre en majuscule
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  function displayPokemonInfo(pokeData) {
+    if (!pokeData) return;
+    pokemonDisplay.textContent = formatName(pokeData.name);
+    pokemonImage.src = pokeData.sprites.front_default || '';
+    // Types
+    const types = pokeData.types.map(t => t.type.name);
+    pokemonTypesDiv.textContent = 'Type(s) : ' + types.map(t => formatName(t)).join(', ');
+  }
+
+  function updateCapturedDisplay() {
+    capturedContainer.innerHTML = '';
+    captured.forEach(pokeData => {
+      const div = document.createElement('div');
+      div.className = 'captured-card';
+      div.innerHTML = `
+        <img src="${pokeData.sprites.front_default}" alt="${formatName(pokeData.name)}">
+        <div>${formatName(pokeData.name)}</div>
+      `;
+      capturedContainer.appendChild(div);
+    });
+  }
+
+  async function startCapture() {
+    ballsLeft = totalBalls;
+    ballsCountSpan.textContent = ballsLeft;
+    feedback.textContent = '';
+    restartBtn.style.display = 'none';
+
+    // Choix aléatoire d’un pokemon avec capture rate
+    const idx = Math.floor(Math.random() * pokemonsCaptureRates.length);
+    currentPokemon = pokemonsCaptureRates[idx];
+    // On récupère les données via API
+    const pokeData = await fetchPokemonData(currentPokemon.name);
+    displayPokemonInfo(pokeData);
+    currentPokemon.pokeData = pokeData;  // stocker pour plus tard
+    throwBtn.disabled = false;
+  }
+
+  throwBtn.addEventListener('click', () => {
+    if (ballsLeft <= 0) return;
+
+    feedback.textContent = "Tu lances une Pokéball...";
+    throwBtn.disabled = true;
+    ballsLeft--;
+    ballsCountSpan.textContent = ballsLeft;
+
+    setTimeout(() => {
+      const chance = Math.random();
+      if (chance < currentPokemon.captureRate) {
+        feedback.textContent = `🎉 Bravo ! Tu as capturé ${formatName(currentPokemon.name)} !`;
+        if (currentPokemon.pokeData) {
+          captured.push(currentPokemon.pokeData);
+          updateCapturedDisplay();
+        }
+        throwBtn.disabled = true;
+        restartBtn.style.display = 'inline-block';
+      } else {
+        if (ballsLeft > 0) {
+          feedback.textContent = `😓 Raté... ${formatName(currentPokemon.name)} s'est échappé ! Il te reste ${ballsLeft} Pokéballs.`;
+          throwBtn.disabled = false;
+        } else {
+          feedback.textContent = `💨 ${formatName(currentPokemon.name)} s'est enfui définitivement !`;
+          throwBtn.disabled = true;
+          restartBtn.style.display = 'inline-block';
+        }
+      }
+    }, 1000); // délai pour suspense
+  });
+
+  restartBtn.addEventListener('click', () => {
+    startCapture();
+  });
+
+  // Pour initialiser le Pokédex : charger les 151 premiers Pokémon + leurs données, pour affichage
+  async function initPokedex() {
+    // Appel API pour lister les 151 pokemons
+    try {
+      const listResponse = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
+      const listData = await listResponse.json();
+      const results = listData.results; // array d’objets { name, url }
+      // Pour chaque pokemon, fetch ses données
+      for (const result of results) {
+        const pokeData = await fetchPokemonData(result.name);
+        if (pokeData) {
+          const card = document.createElement('div');
+          card.className = 'pokedex-card';
+          card.innerHTML = `
+            <img src="${pokeData.sprites.front_default}" alt="${formatName(pokeData.name)}">
+            <div>${formatName(pokeData.name)}</div>
+            <div class="stats">
+              <div>HP: ${pokeData.stats.find(s => s.stat.name === 'hp').base_stat}</div>
+              <div>Attack: ${pokeData.stats.find(s => s.stat.name === 'attack').base_stat}</div>
+              <div>Defense: ${pokeData.stats.find(s => s.stat.name === 'defense').base_stat}</div>
+            </div>
+          `;
+          pokedexListDiv.appendChild(card);
+        }
+      }
+    } catch (err) {
+      console.error('Erreur init pokedex', err);
+    }
+  }
+
+  // Démarrage
+  startCapture();
+  initPokedex();
+
+</script>
+
+
+
+
+<!--Faire pop cat mode Gedagedi-->
+
+</body>
+</html>
